@@ -114,3 +114,56 @@ export const createMealPlan = async (req: Request, res: Response) => {
     res.send({"error": "Parameters calories, n, m and dietType are required."});
   }
 };
+
+
+export const userRecipes = async (req: Request, res: Response) => {
+  const userId = getNumberParameter(req, 'userId');
+  if(userId !== false){
+    res.send(await getUserRecipes(userId));
+  } else {
+    res.status(400);
+    res.send({"error" : "Invalid userId format."});
+  }
+};
+
+export const saveUserRecipe = async (req: Request, res: Response) => {
+  const userId = getNumberParameter(req, 'userId');
+  if(userId !== false){
+    res.send(await getUserByUsername(userId));
+  } else {
+    res.status(400);
+    res.send({"error" : "Invalid userId format."});
+  }
+};
+
+export const deleteUserRecipe = async (req: Request, res: Response) => {
+  const userId = getNumberParameter(req, 'userId');
+  if(userId !== false){
+    res.send(await getUserByUsername(userId));
+  } else {
+    res.status(400);
+    res.send({"error" : "Invalid userId format."});
+  }
+};
+
+export const recipes = async (req: Request, res: Response) => {
+  const query = getParameterFromRequest(req, 'q');
+  const diet = getDietType(req);
+  const n = getNumberFromRequest(req, 'n') || 1;
+  if(query !== false){
+    res.send(await searchRecipe(query, diet, n));
+  } else {
+    res.status(400);
+    res.send({"error" : "Parameter q is required to search for recipes."});
+  }
+};
+
+export const recipeDetails = async (req: Request, res: Response) => {
+  const recipeId = getNumberParameter(req, 'recipeId');
+  if(recipeId !== false){
+    res.send(await getRecipeDetails(recipeId));
+  } else {
+    res.status(400);
+    res.send({"error" : "Invalid recipeId format."});
+  }
+};

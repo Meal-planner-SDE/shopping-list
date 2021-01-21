@@ -11,28 +11,23 @@
 
 import express from 'express';
 import {
-  user,
-  postUser,
-  patchUser,
-  calories,
-  mealPlans,
-  mealPlanById,
-  createMealPlan
+  userRecipes,
+  recipeDetails,
+  recipes,
+  saveUserRecipe,
+  deleteUserRecipe
 } from './controller';
 
 const router = express.Router();
 
-router.get('/users/:username', user);
-router.post('/users', postUser);
-router.patch('/users/:userId', patchUser);
 
-router.get('/calories', calories);
+router.get('/users/:userId/recipes', userRecipes);
+router.post('/users/:userId/recipes', saveUserRecipe);
+router.delete('/users/:userId/recipes', deleteUserRecipe);
 
-router.get('/users/:userId/mealPlans', mealPlans);
-router.get('/users/:userId/mealPlans/:mealPlanId', mealPlanById);
-// router.post('/users/:userId/mealPlans', saveMealPlan);
+router.get('/recipes', recipes);
+router.get('/recipes/:recipeId', recipeDetails);
 
-router.get('/mealPlans', createMealPlan);
 
 
 
