@@ -140,7 +140,7 @@ export const getParameterFromRequest: (req: Request, param: string) => string | 
 ) => {
   let value = req.query[param];
   try {
-    return String(value);
+    return (value === undefined) ? false : String(value);
   } catch (e) {
     console.error(`Error extracting parameter ${param}:`, e);
     return false;

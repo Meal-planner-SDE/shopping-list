@@ -21,6 +21,22 @@ export interface MPUser {
   current_weekly_plan_id: number
 }
 
+export interface Ingredient {
+  ingredient_id: number
+}
+
+export interface ShoppingList {
+  shopping_list_id: number
+}
+
+export interface ShoppingListEntry {
+  shopping_list_entry_id: number,
+  shopping_list_id: number,
+  ingredient_id: number,
+  quantity: number,
+  measure: string
+}
+
 export interface CaloriesData {
   height: number,
   weight: number,
@@ -165,4 +181,15 @@ export interface SpoonacularAmount {
   targetAmount: number,
   targetUnit: string,
   answer: string
+}
+
+export class Category {
+  category: string;
+  ingredients: SpoonacularIngredient[];
+  
+  constructor(category:string, ingredient:SpoonacularIngredient){
+    this.category = category;
+    this.ingredients = [];
+    this.ingredients.push(ingredient);
+  }
 }

@@ -14,16 +14,24 @@ import {
   userRecipes,
   recipeDetails,
   recipes,
-  saveUserRecipe,
-  deleteUserRecipe
+  saveUserRecipes,
+  deleteUserRecipe,
+  userShoppingList,
+  patchUserShoppingList,
+  groupIngredients
 } from './controller';
 
 const router = express.Router();
 
 
 router.get('/users/:userId/recipes', userRecipes);
-router.post('/users/:userId/recipes', saveUserRecipe);
+router.post('/users/:userId/recipes', saveUserRecipes);
 router.delete('/users/:userId/recipes', deleteUserRecipe);
+
+router.get('/users/:userId/shoppingList', userShoppingList);
+router.patch('/users/:userId/shoppingList', patchUserShoppingList);
+
+router.post('/groupIngredients', groupIngredients);
 
 router.get('/recipes', recipes);
 router.get('/recipes/:recipeId', recipeDetails);

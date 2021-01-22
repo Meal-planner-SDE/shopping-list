@@ -10,20 +10,18 @@
  *   It really depends on your project, style and personal preference :)
  */
 
-import { Error, MPUser, CaloriesData, MealPlan, SpoonacularRecipe, DailyPlan, Recipe} from './types';
+import { Error, SpoonacularRecipe, Recipe, ShoppingListEntry, Ingredient, Category, SpoonacularIngredient, SpoonacularIngredientRaw} from './types';
 import config from '../config';
 import qs from 'qs';
 
 import axios from 'axios';
-import { computeNeededCalories } from './helper';
 axios.defaults.paramsSerializer = (params) => {
   return qs.stringify(params, { indices: false });
 };
 
-
-export const getUserByUsername: (user_name: string) => Promise<MPUser | Error> = async (user_name) => {
+export const getUserRecipes: (userId: number) => Promise<Recipe[] | Error> = async (userId) => {
   try {
-    const response = await axios.get<MPUser>(`${config.INTERNAL_DB_ADAPTER_URL}/users/${user_name}`);
+    const response = await axios.get<Recipe[]>(`${config.INTERNAL_DB_ADAPTER_URL}/users/${userId}/recipes`);
     return response.data;
   } catch (e) {
     console.error(e);
@@ -33,9 +31,9 @@ export const getUserByUsername: (user_name: string) => Promise<MPUser | Error> =
   }
 };
 
-export const insertUser: (user : MPUser) => Promise<MPUser | Error> = async (user) => {
+export const saveRecipes: (userId: number, recipes: Recipe[]) => Promise<Recipe[] | Error> = async (userId, recipes) => {
   try {
-    const response = await axios.post<MPUser>(`${config.INTERNAL_DB_ADAPTER_URL}/users/`, user);
+    const response = await axios.post<Recipe[]>(`${config.INTERNAL_DB_ADAPTER_URL}/users/${userId}/recipes`, recipes);
     return response.data;
   } catch (e) {
     console.error(e);
@@ -45,9 +43,9 @@ export const insertUser: (user : MPUser) => Promise<MPUser | Error> = async (use
   }
 };
 
-export const updateUser: (id: number, user : MPUser) => Promise<MPUser | Error> = async (id, user) => {
+export const deleteRecipe: (userId: number, recipeId: number) => Promise<Recipe | Error> = async (userId, recipeId) => {
   try {
-    const response = await axios.patch<MPUser>(`${config.INTERNAL_DB_ADAPTER_URL}/users/${id}`, user);
+    const response = await axios.delete<Recipe>(`${config.INTERNAL_DB_ADAPTER_URL}/users/${userId}/recipes/${recipeId}`);
     return response.data;
   } catch (e) {
     console.error(e);
@@ -57,62 +55,78 @@ export const updateUser: (id: number, user : MPUser) => Promise<MPUser | Error> 
   }
 };
 
-export const computeCalories: (data: CaloriesData) => Promise<Object | Error> = async (data) => {
-  return {neededCalories: computeNeededCalories(data)};
-};
-
-export const getMealPlans: (userId: number) => Promise<MealPlan[] | Error> = async (userId) => {
+export const searchRecipe: (query: string, diet:string, n: number) => Promise<SpoonacularRecipe[] | Error> = async (query, diet, n) => {
   try {
-    const response = await axios.get<MealPlan[]>(`${config.INTERNAL_DB_ADAPTER_URL}/users/${userId}/mealPlans`);
-    return response.data;
-  } catch (e) {
-    console.error(e);
-    return {
-      error: e.toString(),
-    };
-  }
-};
-
-export const getMealPlanById: (userId: number, mealPlanId: number) => Promise<MealPlan | Error> = async (userId, mealPlanId) => {
-  try {
-    const response = await axios.get<MealPlan>(`${config.INTERNAL_DB_ADAPTER_URL}/users/${userId}/mealPlans/${mealPlanId}`);
-    return response.data;
-  } catch (e) {
-    console.error(e);
-    return {
-      error: e.toString(),
-    };
-  }
-};
-
-export const generateMealPlan: (calories: number, days: number, mealsPerDay: number, dietType: string) => Promise<MealPlan | Error> = async (calories, days, mealsPerDay, dietType) => {
-  try {
-    const totalRecipes = days * mealsPerDay;
     const response = await axios.get<SpoonacularRecipe[]>(`${config.SPOONACULAR_ADAPTER_URL}/recipe`, {
       params: {
-        diet: dietType,
-        n: totalRecipes
+        q: query,
+        diet: diet,
+        n: n
       }
     });
-    let k=0;
-    let dailyPlans:DailyPlan[] = [];
-    for(let i=0; i<days; i++){
-      let recipes:SpoonacularRecipe[] = [];
-      for(let j=0; j<mealsPerDay; j++){
-        recipes.push(response.data[k] as SpoonacularRecipe);
-        k++;
-      }
-      let dailyPlan = {recipes: recipes}; 
-      dailyPlans.push(dailyPlan);
-    }
-
-    let result:MealPlan = {
-      daily_calories: calories,
-      diet_type: dietType,
-      daily_plans: dailyPlans
+    return response.data;
+  } catch (e) {
+    console.error(e);
+    return {
+      error: e.toString(),
     };
+  }
+};
 
-    return result;
+export const getRecipeDetails: (recipeId: number) => Promise<SpoonacularRecipe | Error> = async (recipeId) => {
+  try {
+    const response = await axios.get<SpoonacularRecipe>(`${config.SPOONACULAR_ADAPTER_URL}/recipe/${recipeId}`);
+    return response.data;
+  } catch (e) {
+    console.error(e);
+    return {
+      error: e.toString(),
+    };
+  }
+};
+
+export const getUserShoppingList: (userId: number) => Promise<ShoppingListEntry[] | Error> = async (userId) => {
+  try {
+    const response = await axios.get<ShoppingListEntry[]>(`${config.INTERNAL_DB_ADAPTER_URL}/users/${userId}/shoppingList`);
+    return response.data;
+  } catch (e) {
+    console.error(e);
+    return {
+      error: e.toString(),
+    };
+  }
+};
+
+export const updateUserShoppingList: (userId: number, ingredients: ShoppingListEntry[]) => Promise<ShoppingListEntry[] | Error> = async (userId, ingredients) => {
+  try {
+    const response = await axios.patch<ShoppingListEntry[]>(`${config.INTERNAL_DB_ADAPTER_URL}/users/${userId}/shoppingList`, ingredients);
+    return response.data;
+  } catch (e) {
+    console.error(e);
+    return {
+      error: e.toString(),
+    };
+  }
+};
+
+export const getGroupedIngredients: (ingredients: Ingredient[]) => Promise<{[category_name: string]: Category} | Error> = async (ingredients) => {
+  try {
+    let categories = {} as {[category_name: string]: Category};    
+    for(const ingredient of ingredients){
+      const response = await axios.get<SpoonacularIngredientRaw>(`${config.SPOONACULAR_ADAPTER_URL}/ingredient/${ingredient.ingredient_id}`);
+      const responseIngredient = new SpoonacularIngredient(response.data);
+      console.log(responseIngredient);
+      
+      for(const category of responseIngredient.categoryPath){
+        if (! (category in categories)){
+          categories[category] = new Category(category, responseIngredient);
+        } else {
+          categories[category].ingredients.push(responseIngredient);
+        }
+      }
+
+    }
+    return categories;
   } catch (e) {
     console.error(e);
     return {
