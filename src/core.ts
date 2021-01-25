@@ -10,11 +10,19 @@
  *   It really depends on your project, style and personal preference :)
  */
 
-import { Error, SpoonacularRecipe, Recipe, ShoppingListEntry, Ingredient, Category, SpoonacularIngredient, SpoonacularIngredientRaw} from './types';
+import { Error, isError,
+   SpoonacularRecipe, 
+   Recipe, 
+   ShoppingListEntry, 
+   Ingredient, 
+   Category, 
+   SpoonacularIngredient, 
+   SpoonacularIngredientRaw} from './types';
 import config from '../config';
 import qs from 'qs';
 
 import axios from 'axios';
+// import { isError } from 'util';
 axios.defaults.paramsSerializer = (params) => {
   return qs.stringify(params, { indices: false });
 };
@@ -109,24 +117,48 @@ export const updateUserShoppingList: (userId: number, ingredients: ShoppingListE
   }
 };
 
-export const getGroupedIngredients: (ingredients: Ingredient[]) => Promise<{[category_name: string]: Category} | Error> = async (ingredients) => {
+export const getGroupedIngredients: (ingredients: Ingredient[]) => 
+  Promise<Category[] | Error> = async (ingredients) => {
   try {
-    let categories = {} as {[category_name: string]: Category};    
-    for(const ingredient of ingredients){
-      const response = await axios.get<SpoonacularIngredientRaw>(`${config.SPOONACULAR_ADAPTER_URL}/ingredient/${ingredient.ingredient_id}`);
-      const responseIngredient = new SpoonacularIngredient(response.data);
-      console.log(responseIngredient);
-      
-      for(const category of responseIngredient.categoryPath){
-        if (! (category in categories)){
-          categories[category] = new Category(category, responseIngredient);
-        } else {
-          categories[category].ingredients.push(responseIngredient);
+    const known_categories = ["meat", "steak", "fish", "cheese", "vegetable", "sprouts", "onion", "fruit", "spices", "herbs",
+    "condiment", "cooking fat", "bread"];
+    let categories = {} as {[category_name: string]: Category};
+
+    let promises = ingredients.map((ingredient) => {
+      return axios.get<SpoonacularIngredientRaw>(`${config.SPOONACULAR_ADAPTER_URL}/ingredient/${ingredient.ingredient_id}`);
+    });
+    let spoon_ingredients = (await Promise.all(promises)).map(ingredient => {
+      return new SpoonacularIngredient(ingredient.data);
+    }).filter(ingredient => ingredient.categoryPath != null);
+
+    for (let ingredient of spoon_ingredients){
+      let category_found = "other";
+      for(const category of ingredient.categoryPath){
+        if (known_categories.indexOf(category) > -1){
+          category_found = category;
+          break;
         }
       }
-
+      if (! (category_found in categories)){
+        categories[category_found] = new Category(category_found, ingredient);
+      } else {
+        categories[category_found].ingredients.push(ingredient);
+      }
     }
-    return categories;
+    return Object.values(categories);
+} catch (e) {
+  console.error(e);
+  return {
+    error: e.toString(),
+  };
+}
+};
+
+export const searchNearbyShopsByCategories: (ingredients: ShoppingListEntry[]) => 
+  Promise<ShoppingListEntry[] | Error> = async (userId) => {
+  try {
+    const response = await axios.get<ShoppingListEntry[]>(`${config.INTERNAL_DB_ADAPTER_URL}/users/${userId}/shoppingList`);
+    return response.data;
   } catch (e) {
     console.error(e);
     return {

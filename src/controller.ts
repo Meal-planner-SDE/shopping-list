@@ -19,7 +19,8 @@ import {
   searchRecipe,
   getUserShoppingList,
   updateUserShoppingList,
-  getGroupedIngredients
+  getGroupedIngredients,
+  searchNearbyShopsByCategories
 } from './core';
 import {
   getDietType,
@@ -109,3 +110,6 @@ export const groupIngredients = async (req: Request, res: Response) => {
   res.send(await getGroupedIngredients(req.body));
 };
 
+export const nearbyShopsByCategories = async (req: Request, res: Response) => {
+  res.send(await searchNearbyShopsByCategories(req.body));
+};

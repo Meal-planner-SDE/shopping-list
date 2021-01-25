@@ -18,7 +18,8 @@ import {
   deleteUserRecipe,
   userShoppingList,
   patchUserShoppingList,
-  groupIngredients
+  groupIngredients,
+  nearbyShopsByCategories
 } from './controller';
 
 const router = express.Router();
@@ -35,6 +36,8 @@ router.post('/groupIngredients', groupIngredients);
 
 router.get('/recipes', recipes);
 router.get('/recipes/:recipeId', recipeDetails);
+
+router.get('/shopsByCategories', nearbyShopsByCategories);
 
 
 
