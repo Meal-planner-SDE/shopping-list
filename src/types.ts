@@ -192,3 +192,29 @@ export class Category {
     this.ingredients.push(ingredient);
   }
 }
+
+export interface Area{
+  display_name: string;
+  s: string;
+  w: string;
+  n: string;
+  e: string;
+}
+
+export interface Shop{
+  lat: number;
+  lon: number;
+  name: string;
+  shop: string;
+}
+
+export interface ShopsQuery{
+  area: Area,
+  categories: string[]
+}
+
+export interface ShopsResult{
+  category: string,
+  shops: Shop[],
+}
+

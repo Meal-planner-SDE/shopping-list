@@ -16,6 +16,10 @@ import { Error, isError,
    ShoppingListEntry, 
    Ingredient, 
    Category, 
+   Shop,
+   ShopsQuery,
+   ShopsResult,
+   Area,
    SpoonacularIngredient, 
    SpoonacularIngredientRaw} from './types';
 import config from '../config';
@@ -26,6 +30,22 @@ import axios from 'axios';
 axios.defaults.paramsSerializer = (params) => {
   return qs.stringify(params, { indices: false });
 };
+
+const category2shop = {
+  "fish": "seafood",
+  "sprouts" : "greengrocer",
+  "onion" : "greengrocer",
+  "fruit" : "greengrocer",
+  "spices" : "greengrocer",
+  "herbs" : "greengrocer",
+  "meat" : "butcher", 
+  "steak": "butcher",
+  "cheese": "dairy",
+  "bread": "bakery",
+  "vegetable" : "greengrocer",
+  "other" : "supermarket"
+} as {[key:string]: string}
+
 
 export const getUserRecipes: (userId: number) => Promise<Recipe[] | Error> = async (userId) => {
   try {
@@ -120,8 +140,7 @@ export const updateUserShoppingList: (userId: number, ingredients: ShoppingListE
 export const getGroupedIngredients: (ingredients: Ingredient[]) => 
   Promise<Category[] | Error> = async (ingredients) => {
   try {
-    const known_categories = ["meat", "steak", "fish", "cheese", "vegetable", "sprouts", "onion", "fruit", "spices", "herbs",
-    "condiment", "cooking fat", "bread"];
+    
     let categories = {} as {[category_name: string]: Category};
 
     let promises = ingredients.map((ingredient) => {
@@ -134,7 +153,7 @@ export const getGroupedIngredients: (ingredients: Ingredient[]) =>
     for (let ingredient of spoon_ingredients){
       let category_found = "other";
       for(const category of ingredient.categoryPath){
-        if (known_categories.indexOf(category) > -1){
+        if (category in category2shop){
           category_found = category;
           break;
         }
@@ -154,11 +173,22 @@ export const getGroupedIngredients: (ingredients: Ingredient[]) =>
 }
 };
 
-export const searchNearbyShopsByCategories: (ingredients: ShoppingListEntry[]) => 
-  Promise<ShoppingListEntry[] | Error> = async (userId) => {
+export const searchNearbyShopsByCategories: (query:{area: Area, categories: Category[]}) => 
+  Promise<ShopsResult[] | Error> = async (query) => {
   try {
-    const response = await axios.get<ShoppingListEntry[]>(`${config.INTERNAL_DB_ADAPTER_URL}/users/${userId}/shoppingList`);
-    return response.data;
+    // const response = await axios.post<ShoppingListEntry[]>(`${config.SPOONACULAR_ADAPTER_URL}/users/${userId}/shoppingList`);
+    if (!query.categories)
+      throw new Error("Categories not found");
+    const category_names = query.categories.map(category => {
+      if (category.category in category2shop)
+        throw new Error(`Unknown category '${category.category}'`)
+      return category2shop[category.category];
+    });
+    let body = {} as ShopsQuery;
+    body.area = query.area;
+    body.categories = category_names;
+    const shops = await axios.post<ShopsResult[]>(`${config.OSM_ADAPTER_URL}/shops`, body);
+    return shops.data;
   } catch (e) {
     console.error(e);
     return {
