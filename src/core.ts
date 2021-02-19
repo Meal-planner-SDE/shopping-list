@@ -131,12 +131,12 @@ export const updateUserShoppingList: (userId: number, ingredients: ShoppingListE
     //convert every element in grams
     let final_entries:{[key: number] : ShoppingListEntry;} = {}
     for(let entry of ingredients){
-      const ingredient_response = await axios.get<SpoonacularIngredientRaw>(`${config.SPOONACULAR_ADAPTER_URL}/ingredient/${entry.ingredient_id}`);
-      const ingredient = new SpoonacularIngredient(ingredient_response.data);
+      // const ingredient_response = await axios.get<SpoonacularIngredientRaw>(`${config.SPOONACULAR_ADAPTER_URL}/ingredient/${entry.ingredient_id}`);
+      // const ingredient = new SpoonacularIngredient(ingredient_response.data);
 
       const response = await axios.get<Measure>(`${config.SPOONACULAR_ADAPTER_URL}/convert`, {
         params: {
-          ingredientName: ingredient.name,
+          ingredientName: entry.ingredient_name,
           sourceAmount: entry.quantity,
           sourceUnit: entry.measure,
           targetUnit: "g"
