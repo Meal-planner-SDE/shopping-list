@@ -148,6 +148,7 @@ export const updateUserShoppingList: (userId: number, ingredients: ShoppingListE
       }else{
         entry.quantity = response.data.targetAmount;
       }
+      entry.quantity = Math.ceil(entry.quantity)
       if(!final_entries.hasOwnProperty(entry.ingredient_id)){
         final_entries[entry.ingredient_id] = entry;
       }else{
