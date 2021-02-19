@@ -133,21 +133,24 @@ export const updateUserShoppingList: (userId: number, ingredients: ShoppingListE
     for(let entry of ingredients){
       // const ingredient_response = await axios.get<SpoonacularIngredientRaw>(`${config.SPOONACULAR_ADAPTER_URL}/ingredient/${entry.ingredient_id}`);
       // const ingredient = new SpoonacularIngredient(ingredient_response.data);
-
-      const response = await axios.get<Measure>(`${config.SPOONACULAR_ADAPTER_URL}/convert`, {
-        params: {
-          ingredientName: entry.ingredient_name,
-          sourceAmount: entry.quantity,
-          sourceUnit: entry.measure,
-          targetUnit: "g"
+      if(entry.measure !== "g"){
+        if(entry.quantity > 0){
+          const response = await axios.get<Measure>(`${config.SPOONACULAR_ADAPTER_URL}/convert`, {
+            params: {
+              ingredientName: entry.ingredient_name,
+              sourceAmount: entry.quantity,
+              sourceUnit: entry.measure,
+              targetUnit: "g"
+            }
+          });
+          if(response.data.hasOwnProperty("error")){
+            entry.quantity = 100;
+          }else{
+            entry.quantity = response.data.targetAmount;
+          }
         }
-      });
-      entry.measure = "g";
-      if(response.data.hasOwnProperty("error")){
-        entry.quantity = 100;
-      }else{
-        entry.quantity = response.data.targetAmount;
       }
+      entry.measure = "g";
       entry.quantity = Math.ceil(entry.quantity)
       if(!final_entries.hasOwnProperty(entry.ingredient_id)){
         final_entries[entry.ingredient_id] = entry;
