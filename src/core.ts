@@ -129,6 +129,7 @@ export const getUserShoppingList: (userId: number) => Promise<ShoppingListEntry[
 export const updateUserShoppingList: (userId: number, ingredients: ShoppingListEntry[]) => Promise<ShoppingListEntry[] | Error> = async (userId, ingredients) => {
   try {
     //convert every element in grams
+    let final_entries:{[key: number] : ShoppingListEntry;} = {}
     for(let entry of ingredients){
       const ingredient_response = await axios.get<SpoonacularIngredientRaw>(`${config.SPOONACULAR_ADAPTER_URL}/ingredient/${entry.ingredient_id}`);
       const ingredient = new SpoonacularIngredient(ingredient_response.data);
@@ -147,8 +148,14 @@ export const updateUserShoppingList: (userId: number, ingredients: ShoppingListE
       }else{
         entry.quantity = response.data.targetAmount;
       }
+      if(!final_entries.hasOwnProperty(entry.ingredient_id)){
+        final_entries[entry.ingredient_id] = entry;
+      }else{
+        final_entries[entry.ingredient_id].quantity += entry.quantity;
+      }
     }
-    const response = await axios.patch<ShoppingListEntry[]>(`${config.INTERNAL_DB_ADAPTER_URL}/users/${userId}/shoppingList`, ingredients);
+    console.log(Object.values(final_entries))
+    const response = await axios.patch<ShoppingListEntry[]>(`${config.INTERNAL_DB_ADAPTER_URL}/users/${userId}/shoppingList`, Object.values(final_entries));
     return response.data;
   } catch (e) {
     console.error(e);
