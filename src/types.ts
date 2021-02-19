@@ -36,6 +36,10 @@ export interface ShoppingListEntry {
   measure: string
 }
 
+export interface Measure {
+  targetAmount: number
+}
+
 export interface CaloriesData {
   height: number,
   weight: number,

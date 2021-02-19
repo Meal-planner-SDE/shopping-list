@@ -21,7 +21,8 @@ import { Error, isError,
    ShopsResult,
    Area,
    SpoonacularIngredient, 
-   SpoonacularIngredientRaw} from './types';
+   SpoonacularIngredientRaw,
+   Measure} from './types';
 import config from '../config';
 import qs from 'qs';
 
@@ -127,6 +128,26 @@ export const getUserShoppingList: (userId: number) => Promise<ShoppingListEntry[
 
 export const updateUserShoppingList: (userId: number, ingredients: ShoppingListEntry[]) => Promise<ShoppingListEntry[] | Error> = async (userId, ingredients) => {
   try {
+    //convert every element in grams
+    for(let entry of ingredients){
+      const ingredient_response = await axios.get<SpoonacularIngredientRaw>(`${config.SPOONACULAR_ADAPTER_URL}/ingredient/${entry.ingredient_id}`);
+      const ingredient = new SpoonacularIngredient(ingredient_response.data);
+
+      const response = await axios.get<Measure>(`${config.SPOONACULAR_ADAPTER_URL}/convert`, {
+        params: {
+          ingredientName: ingredient.name,
+          sourceAmount: entry.quantity,
+          sourceUnit: entry.measure,
+          targetUnit: "g"
+        }
+      });
+      entry.measure = "g";
+      if(response.data.hasOwnProperty("error")){
+        entry.quantity = 100;
+      }else{
+        entry.quantity = response.data.targetAmount;
+      }
+    }
     const response = await axios.patch<ShoppingListEntry[]>(`${config.INTERNAL_DB_ADAPTER_URL}/users/${userId}/shoppingList`, ingredients);
     return response.data;
   } catch (e) {
@@ -136,6 +157,23 @@ export const updateUserShoppingList: (userId: number, ingredients: ShoppingListE
     };
   }
 };
+
+// {'meal_plan_id': 9,
+//  'mp_user_id': 3,
+//  'is_current': True, 
+//  'daily_calories': 3070, 
+//  'diet_type': 'vegan', 
+//  'daily_plans': [
+//     {'daily_plan_id': 26, 
+//      'meal_plan_id': 9, 
+//      'daily_plan_number': 0, 
+//      'recipes': [
+//        {'recipe_id': 716426}, 
+//        {'recipe_id': 715594}
+//       ]
+//     }
+//   ]
+// }
 
 export const getGroupedIngredients: (ingredients: Ingredient[]) => 
   Promise<Category[] | Error> = async (ingredients) => {
