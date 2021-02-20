@@ -27,7 +27,7 @@ const router = express.Router();
 
 router.get('/users/:userId/recipes', userRecipes);
 router.post('/users/:userId/recipes', saveUserRecipes);
-router.delete('/users/:userId/recipes', deleteUserRecipe);
+router.delete('/users/:userId/recipes/:recipeId', deleteUserRecipe);
 
 router.get('/users/:userId/shoppingList', userShoppingList);
 router.patch('/users/:userId/shoppingList', patchUserShoppingList);
