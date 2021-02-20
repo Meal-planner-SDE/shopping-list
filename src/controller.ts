@@ -25,6 +25,7 @@ import {
 import {
   getDietType,
   getNumberFromRequest,
+  getFloatFromRequest,
   getNumberParameter,
   getParameterFromRequest
 } from './helper';
@@ -111,8 +112,8 @@ export const groupIngredients = async (req: Request, res: Response) => {
 };
 
 export const nearbyShopsByCategories = async (req: Request, res: Response) => {
-  const lat = getNumberFromRequest(req, 'lat');
-  const lon = getNumberFromRequest(req, 'lon');
+  const lat = getFloatFromRequest(req, 'lat');
+  const lon = getFloatFromRequest(req, 'lon');
   if (lat !== false && lon !== false){
     res.send(await searchNearbyShopsByCategories(lat, lon, req.body));
   } else {

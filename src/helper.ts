@@ -59,6 +59,25 @@ export const getNumberFromRequest: (req: Request, param: string) => number | fal
   }
 };
 
+export const getFloatFromRequest: (req: Request, param: string) => number | false = (
+  req,
+  param
+) => {
+  let value = req.query[param];
+
+  if (typeof value !== 'string') {
+    return false;
+  }
+
+  try {
+    const result = parseFloat(value);
+    return isNaN(result) ? false : result;
+  } catch (e) {
+    console.error(`Error extracting parameter ${param}:`, e);
+    return false;
+  }
+};
+
 /**
  * Get the "id" parameter from a query
  * @param req The request (as given in the controller)
