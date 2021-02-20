@@ -214,8 +214,7 @@ export const getGroupedIngredients: (ingredients: Ingredient[]) =>
     let spoon_ingredients = (await Promise.all(promises)).map(ingredient => {
       return new SpoonacularIngredient(ingredient.data);
     }).filter(ingredient => {
-      console.log(ingredient);
-      return ('name' in ingredient);
+      return ingredient.name !== undefined;
     });
     // console.log(spoon_ingredients)
     
