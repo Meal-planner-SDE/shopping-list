@@ -244,14 +244,15 @@ export const searchNearbyShopsByCategories: (lat: number, lon: number, categorie
         throw new Error(`Unknown category '${category.category}'`)
       return category2shop[category.category];
     });
-    let body = {} as ShopsQuery;
+    // let body = {} as ShopsQuery;
     // body.area = query.area;
-    body.categories = category_names;
+    // body.categories = category_names;
     let params ={
       lat: lat,
       lon: lon
     };
-    const shops = await axios.post<ShopsResult[]>(`${config.OSM_ADAPTER_URL}/shopsByCoord`, body, {params: params});
+    const shops = await axios.post<ShopsResult[]>(
+      `${config.OSM_ADAPTER_URL}/shopsByCoord`, category_names, {params: params});
     return shops.data;
   } catch (e) {
     console.error(e);
