@@ -34,16 +34,26 @@ axios.defaults.paramsSerializer = (params) => {
 
 const category2shop = {
   "fish": "seafood",
-  "sprouts" : "greengrocer",
-  "onion" : "greengrocer",
-  "fruit" : "greengrocer",
-  "spices" : "greengrocer",
-  "herbs" : "greengrocer",
   "meat" : "butcher", 
-  "steak": "butcher",
-  "cheese": "dairy",
+  "dairy": "dairy",
   "bread": "bakery",
   "vegetable" : "greengrocer",
+  "other" : "supermarket"
+} as {[key:string]: string}
+
+const groupedCategories = {
+  "fish": "fish",
+  "sprouts" : "vegetable",
+  "onion" : "vegetable",
+  "fruit" : "vegetable",
+  "spices" : "vegetable",
+  "herbs" : "vegetable",
+  "vegetable" : "vegetable",
+  "meat" : "meat", 
+  "steak": "meat",
+  "cheese": "dairy",
+  "milk": "dairy",
+  "bread": "bread",
   "other" : "supermarket"
 } as {[key:string]: string}
 
@@ -202,8 +212,8 @@ export const getGroupedIngredients: (ingredients: Ingredient[]) =>
     for (let ingredient of spoon_ingredients){
       let category_found = "other";
       for(const category of ingredient.categoryPath){
-        if (category in category2shop){
-          category_found = category;
+        if (category in groupedCategories){
+          category_found = groupedCategories[category];
           break;
         }
       }
