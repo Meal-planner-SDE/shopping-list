@@ -240,7 +240,7 @@ export const searchNearbyShopsByCategories: (lat: number, lon: number, categorie
     if (!categories)
       throw new Error("Categories not found");
     const category_names = categories.map(category => {
-      if (category.category in category2shop)
+      if (!(category.category in category2shop))
         throw new Error(`Unknown category '${category.category}'`)
       return category2shop[category.category];
     });
