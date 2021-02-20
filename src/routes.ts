@@ -37,7 +37,7 @@ router.post('/groupIngredients', groupIngredients);
 router.get('/recipes', recipes);
 router.get('/recipes/:recipeId', recipeDetails);
 
-router.get('/shopsByCategories', nearbyShopsByCategories);
+router.post('/shopsByCategories', nearbyShopsByCategories);
 
 
 
