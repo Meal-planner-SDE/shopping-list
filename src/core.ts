@@ -213,11 +213,12 @@ export const getGroupedIngredients: (ingredients: Ingredient[]) =>
     let spoon_ingredients = (await Promise.all(promises)).map(ingredient => {
       return new SpoonacularIngredient(ingredient.data);
     });
+    // console.log(spoon_ingredients)
     
     let categories = {} as {[category_name: string]: Category};
     for (let ingredient of spoon_ingredients){
       let category_found = "other";
-      if (ingredient.categoryPath != null){
+      if (ingredient.categoryPath.length > 0){
         for(const category of ingredient.categoryPath){
           if (category in groupedCategories){
             category_found = groupedCategories[category];
