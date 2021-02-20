@@ -212,7 +212,7 @@ export const getGroupedIngredients: (ingredients: Ingredient[]) =>
     });
     let spoon_ingredients = (await Promise.all(promises)).map(ingredient => {
       return new SpoonacularIngredient(ingredient.data);
-    });
+    }).filter(ingredient => 'name' in ingredient);
     // console.log(spoon_ingredients)
     
     let categories = {} as {[category_name: string]: Category};
