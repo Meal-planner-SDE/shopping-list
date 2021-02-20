@@ -54,7 +54,7 @@ export const saveUserRecipes = async (req: Request, res: Response) => {
 
 export const deleteUserRecipe = async (req: Request, res: Response) => {
   const userId = getNumberParameter(req, 'userId');
-  const recipeId = getNumberFromRequest(req, 'recipeId');
+  const recipeId = getNumberParameter(req, 'recipeId');
 
   if(userId !== false && recipeId !== false){
     res.send(await deleteRecipe(userId, recipeId));

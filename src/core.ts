@@ -251,7 +251,7 @@ export const searchNearbyShopsByCategories: (lat: number, lon: number, categorie
       lat: lat,
       lon: lon
     };
-    const shops = await axios.post<ShopsResult[]>(`${config.OSM_ADAPTER_URL}/shops`, body, {params: params});
+    const shops = await axios.post<ShopsResult[]>(`${config.OSM_ADAPTER_URL}/shopsByCoord`, body, {params: params});
     return shops.data;
   } catch (e) {
     console.error(e);
