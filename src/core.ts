@@ -218,7 +218,7 @@ export const getGroupedIngredients: (ingredients: Ingredient[]) =>
     let categories = {} as {[category_name: string]: Category};
     for (let ingredient of spoon_ingredients){
       let category_found = "other";
-      if (ingredient.categoryPath.length > 0){
+      if (ingredient.categoryPath !== undefined && ingredient.categoryPath.length > 0){
         for(const category of ingredient.categoryPath){
           if (category in groupedCategories){
             category_found = groupedCategories[category];
