@@ -54,7 +54,6 @@ const groupedCategories = {
   "cheese": "dairy",
   "milk": "dairy",
   "bread": "bread",
-  "other" : "supermarket"
 } as {[key:string]: string}
 
 
@@ -200,21 +199,23 @@ export const getGroupedIngredients: (ingredients: Ingredient[]) =>
   Promise<Category[] | Error> = async (ingredients) => {
   try {
     
-    let categories = {} as {[category_name: string]: Category};
-
+    
     let promises = ingredients.map((ingredient) => {
       return axios.get<SpoonacularIngredientRaw>(`${config.SPOONACULAR_ADAPTER_URL}/ingredient/${ingredient.ingredient_id}`);
     });
     let spoon_ingredients = (await Promise.all(promises)).map(ingredient => {
       return new SpoonacularIngredient(ingredient.data);
-    }).filter(ingredient => ingredient.categoryPath != null);
-
+    });
+    
+    let categories = {} as {[category_name: string]: Category};
     for (let ingredient of spoon_ingredients){
       let category_found = "other";
-      for(const category of ingredient.categoryPath){
-        if (category in groupedCategories){
-          category_found = groupedCategories[category];
-          break;
+      if (ingredient.categoryPath != null){
+        for(const category of ingredient.categoryPath){
+          if (category in groupedCategories){
+            category_found = groupedCategories[category];
+            break;
+          }
         }
       }
       if (! (category_found in categories)){
