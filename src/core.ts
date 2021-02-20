@@ -27,6 +27,7 @@ import config from '../config';
 import qs from 'qs';
 
 import axios from 'axios';
+import { assert } from 'console';
 // import { isError } from 'util';
 axios.defaults.paramsSerializer = (params) => {
   return qs.stringify(params, { indices: false });
@@ -212,11 +213,15 @@ export const getGroupedIngredients: (ingredients: Ingredient[]) =>
     });
     let spoon_ingredients = (await Promise.all(promises)).map(ingredient => {
       return new SpoonacularIngredient(ingredient.data);
-    }).filter(ingredient => {return ('name' in ingredient);});
+    }).filter(ingredient => {
+      console.log(ingredient);
+      return ('name' in ingredient);
+    });
     // console.log(spoon_ingredients)
     
     let categories = {} as {[category_name: string]: Category};
     for (let ingredient of spoon_ingredients){
+
       let category_found = "other";
       if (ingredient.categoryPath !== undefined && ingredient.categoryPath.length > 0){
         for(const category of ingredient.categoryPath){
