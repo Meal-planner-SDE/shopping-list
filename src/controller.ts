@@ -111,5 +111,12 @@ export const groupIngredients = async (req: Request, res: Response) => {
 };
 
 export const nearbyShopsByCategories = async (req: Request, res: Response) => {
-  res.send(await searchNearbyShopsByCategories(req.body));
+  const lat = getNumberFromRequest(req, 'lat');
+  const lon = getNumberFromRequest(req, 'lon');
+  if (lat !== false && lon !== false){
+    res.send(await searchNearbyShopsByCategories(lat, lon, req.body));
+  } else {
+    res.status(400);
+    res.send({"error": "Invalid lat or lon parameters."});
+  }
 };

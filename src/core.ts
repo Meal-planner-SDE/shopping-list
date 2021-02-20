@@ -233,21 +233,25 @@ export const getGroupedIngredients: (ingredients: Ingredient[]) =>
 }
 };
 
-export const searchNearbyShopsByCategories: (query:{area: Area, categories: Category[]}) => 
-  Promise<ShopsResult[] | Error> = async (query) => {
+export const searchNearbyShopsByCategories: (lat: number, lon: number, categories: Category[]) => 
+  Promise<ShopsResult[] | Error> = async (lat, lon, categories) => {
   try {
     // const response = await axios.post<ShoppingListEntry[]>(`${config.SPOONACULAR_ADAPTER_URL}/users/${userId}/shoppingList`);
-    if (!query.categories)
+    if (!categories)
       throw new Error("Categories not found");
-    const category_names = query.categories.map(category => {
+    const category_names = categories.map(category => {
       if (category.category in category2shop)
         throw new Error(`Unknown category '${category.category}'`)
       return category2shop[category.category];
     });
     let body = {} as ShopsQuery;
-    body.area = query.area;
+    // body.area = query.area;
     body.categories = category_names;
-    const shops = await axios.post<ShopsResult[]>(`${config.OSM_ADAPTER_URL}/shops`, body);
+    let params ={
+      lat: lat,
+      lon: lon
+    };
+    const shops = await axios.post<ShopsResult[]>(`${config.OSM_ADAPTER_URL}/shops`, body, {params: params});
     return shops.data;
   } catch (e) {
     console.error(e);
