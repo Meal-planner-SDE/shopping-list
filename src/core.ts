@@ -41,6 +41,13 @@ const category2shop = {
   "other" : "supermarket"
 } as {[key:string]: string}
 
+let shop2category = {} as {[key:string]: string}
+
+for (let category in category2shop){
+  let shop = category2shop[category]
+  shop2category[shop] = category;
+}
+
 const groupedCategories = {
   "fish": "fish",
   "sprouts" : "vegetable",
@@ -253,6 +260,9 @@ export const searchNearbyShopsByCategories: (lat: number, lon: number, categorie
     };
     const shops = await axios.post<ShopsResult[]>(
       `${config.OSM_ADAPTER_URL}/shopsByCoord`, category_names, {params: params});
+    shops.data.forEach(shop_category => {
+      shop_category.category = shop2category[shop_category.category]
+    });
     return shops.data;
   } catch (e) {
     console.error(e);
