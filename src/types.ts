@@ -214,6 +214,7 @@ export interface Shop{
 }
 
 export interface ShopsQuery{
+  area: Area,
   categories: string[]
 }
 

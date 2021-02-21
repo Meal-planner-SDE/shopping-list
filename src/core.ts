@@ -61,6 +61,7 @@ const groupedCategories = {
   "steak": "meat",
   "cheese": "dairy",
   "milk": "dairy",
+  "yogurt": "dairy",
   "bread": "bread",
 } as {[key:string]: string}
 
