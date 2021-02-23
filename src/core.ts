@@ -108,7 +108,8 @@ export const searchRecipe: (query: string, diet:string, n: number) => Promise<Sp
       params: {
         q: query,
         diet: diet,
-        n: n
+        n: n,
+        offset: 0
       }
     });
     return response.data;
